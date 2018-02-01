@@ -4,15 +4,16 @@ namespace Pingdom\Tests;
 
 class PingdomTest extends \PHPUnit_Framework_TestCase
 {
-	private $username, $password, $token;
+	private $username, $password, $token, $accountemail;
 
 	protected function setUp()
 	{
-		global $username, $password, $token;
+		global $username, $password, $token, $accountemail;
 
 		$this->username = $username;
 		$this->password = $password;
 		$this->token    = $token;
+		$this->accountemail = $accountemail;
 
 		parent::setUp();
 	}
@@ -36,6 +37,19 @@ class PingdomTest extends \PHPUnit_Framework_TestCase
 
 		return $checks;
 	}
+
+	/**
+     * @depends testCredentials
+     */
+    public function testCheckswithAccountemail()
+    {
+        $pingdom = new \Pingdom\Client($this->username, $this->password, $this->token, $this->accountemail);
+        $checks  = $pingdom->getChecks();
+
+        $this->assertTrue(is_array($checks));
+
+        return $checks;
+    }
 
 	/**
 	 * @depends testCredentials

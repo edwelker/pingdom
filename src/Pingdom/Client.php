@@ -22,17 +22,27 @@ class Client
 	 */
 	private $token;
 
+    /**
+     * @var string
+     *
+     * See: https://www.pingdom.com/resources/api/2.1#multi-user+authentication
+     */
+    private $accountemail;
+
 	/**
 	 * @param string $username
 	 * @param string $password
 	 * @param string $token
+     * @param string accountemail
+     *
 	 * @return Client
 	 */
-	public function __construct($username, $password, $token)
+	public function __construct($username, $password, $token, $accountemail="")
 	{
-		$this->username = $username;
-		$this->password = $password;
-		$this->token    = $token;
+		$this->username     = $username;
+		$this->password     = $password;
+		$this->token        = $token;
+		$this->accountemail = $accountemail;
 
 		return $this;
 	}
@@ -67,6 +77,33 @@ class Client
 	  return $this->token;
 	}
 
+    /**
+     * Returns the account-email.
+     *
+     * @return string
+     */
+    protected function getAccountemail()
+    {
+        return $this->accountemail;
+    }
+
+    /**
+     * Generates and returns the appropriate headers.
+     *
+     * @return array
+     */
+    protected function generateHeaders()
+    {
+        if ($this->accountemail == "")
+        {
+            return array('App-Key' => $this->token);
+        }
+        else
+        {
+            return array('App-Key' => $this->token, 'Account-Email' => $this->accountemail);
+        }
+    }
+
 	/**
 	 * Returns a list overview of all checks
 	 *
@@ -78,7 +115,7 @@ class Client
 		$client = new \Guzzle\Service\Client('https://api.pingdom.com/api/2.0');
 
 		/** @var $request \Guzzle\Http\Message\Request */
-		$request = $client->get('checks', array('App-Key' => $this->token));
+		$request = $client->get('checks', $this->generateHeaders());
 		$request->setAuth($this->username, $this->password);
 		$response = $request->send();
 		$response = json_decode($response->getBody(), true);
@@ -96,7 +133,7 @@ class Client
 		$client = new \Guzzle\Service\Client('https://api.pingdom.com/api/2.0');
 
 		/** @var $request \Guzzle\Http\Message\Request */
-		$request = $client->get('probes', array('App-Key' => $this->token));
+		$request = $client->get('probes', $this->generateHeaders());
 		$request->setAuth($this->username, $this->password);
 		$response = $request->send();
 		$response = json_decode($response->getBody(), true);
@@ -122,7 +159,7 @@ class Client
 		$client = new \Guzzle\Service\Client('https://api.pingdom.com/api/2.0');
 
 		/** @var $request \Guzzle\Http\Message\Request */
-		$request = $client->get('results/' . $checkId, array('App-Key' => $this->token));
+		$request = $client->get('results/' . $checkId, $this->generateHeaders());
 		$request->setAuth($this->username, $this->password);
 		$request->getQuery()->set('limit', $limit);
 
@@ -148,7 +185,7 @@ class Client
 		$client = new \Guzzle\Service\Client('https://api.pingdom.com/api/2.0');
 
 		/** @var $request \Guzzle\Http\Message\Request */
-		$request = $client->get('summary.performance/' . $checkId, array('App-Key' => $this->token));
+		$request = $client->get('summary.performance/' . $checkId, $this->generateHeaders());
 		$request->setAuth($this->username, $this->password);
 		$request->getQuery()->set('resolution', $resolution);
 		$request->getQuery()->set('includeuptime', 'true');

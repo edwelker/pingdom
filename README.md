@@ -31,11 +31,12 @@ Basic usage
 ```php
 <?php
 
-$username = ''; // Pingdom username
-$password = ''; // Pingdom password
-$token    = ''; // Pingdom application key (32 characters)
+$username     = ''; // Pingdom username
+$password     = ''; // Pingdom password
+$token        = ''; // Pingdom application key (32 characters)
+$accountemail = ''; //Pingdom Account-Email (optional, for Team Accounts)
 
-$pingdom = new \Pingdom\Client($username, $password, $token);
+$pingdom = new \Pingdom\Client($username, $password, $token, $accountemail);
 
 // List of probe servers
 $probes = $pingdom->getProbes();
@@ -71,6 +72,9 @@ require_once __DIR__ . '/vendor/autoload.php';
 $username = '[your username]';
 $password = '[your password]';
 $token    = '[your token]';
+
+//Optional, see https://www.pingdom.com/resources/api/2.1#multi-user+authentication
+$accountemail = '[your Team email account]';
 ```
 
 and run the tests, from the repository's root, by doing:
