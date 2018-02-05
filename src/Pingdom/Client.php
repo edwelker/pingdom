@@ -100,7 +100,12 @@ class Client
         }
         else
         {
-            return array('App-Key' => $this->token, 'Account-Email' => $this->accountemail);
+            return array(
+                'App-Key' => $this->token,
+                'User-Agent' => 'curl/7.54.0',
+                'Account-Email' => $this->accountemail,
+                'Accept' => '*/*',
+            );
         }
     }
 
@@ -112,12 +117,23 @@ class Client
 	 */
 	public function getChecks()
 	{
-		$client = new \Guzzle\Service\Client('https://api.pingdom.com/api/2.0');
+		$client = new \Guzzle\Service\Client('https://api.pingdom.com/api/2.1');
+
+		$headers = $this->generateHeaders();
 
 		/** @var $request \Guzzle\Http\Message\Request */
-		$request = $client->get('checks', $this->generateHeaders());
+		$request = $client->get('checks', $headers, array('debug' => true) );
 		$request->setAuth($this->username, $this->password);
-		$response = $request->send();
+        try {
+            $response = $request->send();
+        } catch (\Guzzle\Http\Exception\BadResponseException $e) {
+            echo 'Message: ' . $e->getMessage();
+            echo 'URL: ' . $e->getRequest()->getUrl() . "\n";
+            echo 'Request: ' . $e->getRequest() . "\n";
+            echo 'Status Code: ' . $e->getResponse()->getStatusCode() . "\n";
+            echo 'Response: ' . $e->getResponse() . "\n";
+        }
+
 		$response = json_decode($response->getBody(), true);
 
 		return $response['checks'];
@@ -130,7 +146,7 @@ class Client
 	 */
 	public function getProbes()
 	{
-		$client = new \Guzzle\Service\Client('https://api.pingdom.com/api/2.0');
+		$client = new \Guzzle\Service\Client('https://api.pingdom.com/api/2.1');
 
 		/** @var $request \Guzzle\Http\Message\Request */
 		$request = $client->get('probes', $this->generateHeaders());
@@ -156,7 +172,7 @@ class Client
 	 */
 	public function getResults($checkId, $limit = 100, array $probes = null)
 	{
-		$client = new \Guzzle\Service\Client('https://api.pingdom.com/api/2.0');
+		$client = new \Guzzle\Service\Client('https://api.pingdom.com/api/2.1');
 
 		/** @var $request \Guzzle\Http\Message\Request */
 		$request = $client->get('results/' . $checkId, $this->generateHeaders());
@@ -182,7 +198,7 @@ class Client
 	 */
 	public function getPerformanceSummary($checkId, $resolution = 'hour')
 	{
-		$client = new \Guzzle\Service\Client('https://api.pingdom.com/api/2.0');
+		$client = new \Guzzle\Service\Client('https://api.pingdom.com/api/2.1');
 
 		/** @var $request \Guzzle\Http\Message\Request */
 		$request = $client->get('summary.performance/' . $checkId, $this->generateHeaders());
